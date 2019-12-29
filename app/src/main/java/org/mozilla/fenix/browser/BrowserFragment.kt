@@ -241,16 +241,18 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
     override fun getContextMenuCandidates(
         context: Context,
         view: View
-    ): List<ContextMenuCandidate> = ContextMenuCandidate.defaultCandidates(
-        context,
-        context.components.useCases.tabsUseCases,
-        context.components.useCases.contextMenuUseCases,
-        view,
-        FenixSnackbarDelegate(
+    ): List<ContextMenuCandidate>
+    {
+        return ContextMenuCandidate.defaultCandidates(
+            context,
+            context.components.useCases.tabsUseCases,
+            context.components.useCases.contextMenuUseCases,
             view,
-            browserToolbarView.getSnackbarAnchor()
-        )
-    )
+            FenixSnackbarDelegate(
+                view,
+                browserToolbarView.getSnackbarAnchor())
+            ) + ContextMenuCandidate.createOpenInExternalAppCandidate(context, context.components.useCases.appLinksUseCases)
+    }
 
     companion object {
         private const val SHARED_TRANSITION_MS = 200L
