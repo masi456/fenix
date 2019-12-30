@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 include ':app'
 
 def log(message) {
@@ -51,10 +53,13 @@ if (localProperties != null) {
 
     String androidComponentsLocalPath = localProperties.getProperty(settingAndroidComponentsPath)
 
+    boolean isWindows = Os.isFamily(Os.FAMILY_WINDOWS)
+    String gradleScriptName = isWindows ? "gradlew.bat" : "gradlew"
+
     if (androidComponentsLocalPath != null) {
         log("Enabling automatic publication of android-components from: $androidComponentsLocalPath")
         log("Determining if android-components are up-to-date...")
-        def compileAcCmd = ["${androidComponentsLocalPath}/gradlew", "compileReleaseKotlin"]
+        def compileAcCmd = ["${androidComponentsLocalPath}/${gradleScriptName}", "compileReleaseKotlin"]
         def compileOutput = runCmd(compileAcCmd, androidComponentsLocalPath, "Compiled android-components.")
         // This is somewhat brittle: parse last line of gradle output, to fish out how many tasks were executed.
         // One executed task means gradle didn't do any work other than executing the top-level 'compile' task.
@@ -63,7 +68,7 @@ if (localProperties != null) {
             log("android-components are up-to-date, skipping publication.")
         } else {
             log("android-components changed, publishing locally...")
-            def publishAcCmd = ["${androidComponentsLocalPath}/gradlew", "publishToMavenLocal", "-Plocal=true"]
+            def publishAcCmd = ["${androidComponentsLocalPath}/${gradleScriptName}", "publishToMavenLocal", "-Plocal=true"]
             runCmd(publishAcCmd, androidComponentsLocalPath, "Published android-components.")
         }
     } else {
